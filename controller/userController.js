@@ -28,6 +28,6 @@ export const getUser = async (req, res) => {
     }
     throw new Error("Invalid token");
   } catch (error) {
-    return res.status(400).json({ status: "fail", message: error.message });
+    return res.status(400).json({ status: "fail", error: error.message });
   }
 };
