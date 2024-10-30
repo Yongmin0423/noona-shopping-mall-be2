@@ -5,7 +5,9 @@ import {
 } from "../controller/authController.js";
 
 import {
+  deleteProduct,
   getProduct,
+  getProductDetail,
   postProduct,
   updateProduct,
 } from "../controller/productController.js";
@@ -19,6 +21,7 @@ productRouter
 
 productRouter
   .route("/:id")
-  .put(authenticate, checkAdimPermission, updateProduct);
-
+  .get(getProductDetail)
+  .put(authenticate, checkAdimPermission, updateProduct)
+  .delete(authenticate, checkAdimPermission, deleteProduct);
 export default productRouter;

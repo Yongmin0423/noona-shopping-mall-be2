@@ -28,14 +28,18 @@ export const postProduct = async (req, res) => {
     });
     return res.status(200).json({ status: "success", newProduct });
   } catch (error) {
-    return res.status(400).json({ status: "fail", error: error.message });
+    return res
+      .status(400)
+      .json({ status: "fail", error: "빈칸을 전부 채워주세요" });
   }
 };
 
 export const getProduct = async (req, res) => {
   try {
     const { page, name } = req.query;
-    const cond = name ? { name: { $regex: name, $options: "i" } } : {};
+    const cond = name
+      ? { name: { $regex: name, $options: "i" }, isDeleted: false }
+      : { isDeleted: false };
     let query = Product.find(cond);
     let response = { status: "success" };
     if (page) {
@@ -67,6 +71,28 @@ export const updateProduct = async (req, res) => {
       { new: true }
     );
     if (!product) throw new Error("item doesn't exist");
+    return res.status(200).json({ status: "success", data: product });
+  } catch (error) {
+    return res.status(400).json({ status: "fail", error: error.message });
+  }
+};
+
+export const deleteProduct = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const product = await Product.findByIdAndDelete(id, { isDeleted: true });
+    if (!product) throw new Error("No item found");
+    return res.status(200).json({ status: "success", data: product });
+  } catch (error) {
+    return res.status(400).json({ status: "fail", error: error.message });
+  }
+};
+
+export const getProductDetail = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const product = await Product.findById(id);
+    if (!product) throw new Error("No item found");
     return res.status(200).json({ status: "success", data: product });
   } catch (error) {
     return res.status(400).json({ status: "fail", error: error.message });
