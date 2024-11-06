@@ -1,6 +1,9 @@
 import User from "../models/User.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import { OAuth2Client } from "google-auth-library";
+
+const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
 
 export const postLogin = async (req, res) => {
   try {
@@ -14,6 +17,36 @@ export const postLogin = async (req, res) => {
       }
     }
     throw new Error("invalid email or password");
+  } catch (error) {
+    res.status(400).json({ status: "fail", error: error.message });
+  }
+};
+
+export const postLoginWithGoogle = async (req, res) => {
+  try {
+    const { token } = req.body;
+    const googleClient = new OAuth2Client(GOOGLE_CLIENT_ID);
+    const ticket = await googleClient.verifyIdToken({
+      idToken: token,
+      audience: GOOGLE_CLIENT_ID,
+    });
+    const { email, name } = ticket.getPayload();
+    console.log("eeee", email, name);
+    let user = await User.findOne({ email });
+    if (!user) {
+      //유저를 새로 생성
+      const randomPassword = "" + Math.floor(Math.random() * 1000000000);
+      user = await User.create({
+        name,
+        email,
+        password: randomPassword,
+      });
+    }
+    // 토큰발행 리턴
+    const sessionToken = await user.generateToken();
+    return res
+      .status(200)
+      .json({ status: "success", user, token: sessionToken });
   } catch (error) {
     res.status(400).json({ status: "fail", error: error.message });
   }

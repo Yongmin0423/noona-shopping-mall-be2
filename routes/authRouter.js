@@ -1,8 +1,12 @@
 import express from "express";
-import { postLogin } from "../controller/authController.js";
+import {
+  postLogin,
+  postLoginWithGoogle,
+} from "../controller/authController.js";
 
 const authRouter = express.Router();
 
 authRouter.post("/login", postLogin);
+authRouter.post("/google", postLoginWithGoogle);
 
 export default authRouter;

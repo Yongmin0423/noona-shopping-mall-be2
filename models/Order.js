@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import User from "./User.js";
 import Product from "./Product.js";
+import Cart from "./Cart.js";
 
 const orderSchema = new mongoose.Schema(
   {
@@ -28,6 +29,13 @@ orderSchema.method.toJSON = function () {
   delete obj.createdAt;
   return obj;
 };
+
+orderSchema.post("save", async function () {
+  //카트를 비워주자
+  const cart = await Cart.findOne({ userId: this.userId });
+  cart.items = [];
+  await cart.save();
+});
 
 const Order = mongoose.model("Order", orderSchema);
 
