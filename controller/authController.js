@@ -31,7 +31,6 @@ export const postLoginWithGoogle = async (req, res) => {
       audience: GOOGLE_CLIENT_ID,
     });
     const { email, name } = ticket.getPayload();
-    console.log("eeee", email, name);
     let user = await User.findOne({ email });
     if (!user) {
       //유저를 새로 생성
@@ -59,13 +58,15 @@ export const authenticate = async (req, res, next) => {
     if (!tokenString) {
       throw new Error("Token not found");
     }
-    const token = tokenString.replace("Bearer ", ""); //token에서 Bearer 부분 제거
-    jwt.verify(token, process.env.JWT_SECRET_KEY, (error, payload) => {
-      if (error) throw new Error("invalid token");
-      //req.userId란 값에 id값을 추가하는 과정.
-      req.userId = payload._id;
-    });
-    next();
+    const token = tokenString.replace("Bearer ", ""); // Bearer 제거
+
+    // jwt.verify를 비동기 방식으로 사용하고 알고리즘 명시
+    const payload = await jwt.verify(token, process.env.JWT_SECRET_KEY, {
+      algorithms: ["HS256"],
+    }); // algorithms 명시
+
+    req.userId = payload._id; // req.userId에 payload._id 할당
+    next(); // 다음 미들웨어로 넘어가기
   } catch (error) {
     return res.status(400).json({ status: "fail", message: error.message });
   }

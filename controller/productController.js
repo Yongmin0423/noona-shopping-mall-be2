@@ -122,27 +122,38 @@ export const checkStock = async (item) => {
     };
   }
 
-  const newStock = { ...product.stock };
-  newStock[item.size] -= item.qty;
-  product.stock = newStock;
-  await product.save();
-  // 충분하다면, 재고에서 qty를 빼고 성공
-
   return { isVerify: true };
 };
 
+// 아이템 목록에 대한 재고 체크 및 차감
 export const checkItemListStock = async (itemList) => {
-  const insufficientStockItems = []; // 재고가 불충분한 아이템을 저장할 예정
-  // 재고 확인 로직
+  const insufficientStockItems = []; // 재고가 부족한 아이템을 저장할 배열
+
+  // 재고 확인
   await Promise.all(
     itemList.map(async (item) => {
       const stockCheck = await checkStock(item);
+
       if (!stockCheck.isVerify) {
         insufficientStockItems.push({ item, message: stockCheck.message });
       }
+
       return stockCheck;
     })
   );
+
+  // 재고가 충분한 아이템만 차감
+  if (insufficientStockItems.length === 0) {
+    await Promise.all(
+      itemList.map(async (item) => {
+        const product = await Product.findById(item.productId);
+        const newStock = { ...product.stock };
+        newStock[item.size] -= item.qty;
+        product.stock = newStock;
+        await product.save();
+      })
+    );
+  }
 
   return insufficientStockItems;
 };
