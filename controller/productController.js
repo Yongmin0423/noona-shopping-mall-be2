@@ -1,6 +1,6 @@
 import Product from "../models/Product.js";
 
-const PAGE_SIZE = 10;
+const PAGE_SIZE = 3;
 
 export const postProduct = async (req, res) => {
   try {

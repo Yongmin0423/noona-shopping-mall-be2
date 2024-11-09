@@ -31,6 +31,7 @@ userSchema.method.toJSON = function () {
 userSchema.methods.generateToken = function () {
   const token = jwt.sign({ _id: this._id }, process.env.JWT_SECRET_KEY, {
     expiresIn: "1h", // 1시간 동안 유효
+    algorithm: "HS256", // 알고리즘 HS256
   });
   return token;
 };

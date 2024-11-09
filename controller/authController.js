@@ -60,10 +60,10 @@ export const authenticate = async (req, res, next) => {
     }
     const token = tokenString.replace("Bearer ", ""); // Bearer 제거
 
-    // jwt.verify를 비동기 방식으로 사용하고 알고리즘 명시
-    const payload = await jwt.verify(token, process.env.JWT_SECRET_KEY, {
-      algorithms: ["HS256"],
-    }); // algorithms 명시
+    // jwt.verify를 비동기 방식으로 사용
+    const payload = jwt.verify(token, process.env.JWT_SECRET_KEY, {
+      algorithms: ["HS256"], // 또는 RS256
+    });
 
     req.userId = payload._id; // req.userId에 payload._id 할당
     next(); // 다음 미들웨어로 넘어가기

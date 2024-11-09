@@ -2,7 +2,7 @@ import Order from "../models/Order.js";
 import { randomStringGenerator } from "../utils/randomStringGenerator.js";
 import { checkItemListStock } from "./productController.js";
 
-const PAGE_SIZE = 10;
+const PAGE_SIZE = 3;
 
 export const createOrder = async (req, res) => {
   try {
